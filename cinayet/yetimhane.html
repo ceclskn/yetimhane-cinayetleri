@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yetimhane Oyunu</title>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;  
+    align-items: center;
+    justify-content: center; 
+    min-height: 100vh; 
+    background: #c4b9b9;
+    margin: 0; 
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+  }
+  #gameContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  canvas {
+    border: 4px solid #ffffff;
+    background-color: #4c0a0a;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+  }
+  #buttons {  /* Butonlar için stil */
+    margin-top: 20px;
+  }
+  button {
+    font-size: 16px;
+    padding: 10px 15px;
+    margin: 0 15px;
+    cursor: pointer;
+    border-radius: 12px;
+    border: none;
+    background-color: #740b0b;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: rgb(201, 195, 195);
+  }
+  #passwordArea, #passwordArea2, #katilArea { /* Şifre giriş alanları için stil */
+    margin-top: 10px;
+    text-align: center;
+    width: 800px;
+    background-color: #000000;
+    border: 3px solid #ffffff;
+    padding: 15px;
+    box-sizing: border-box;
+    box-shadow: 4px 4px 15px rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+  #passwordInput, #passwordInput2, #katilInput {
+    font-size: 18px;
+    padding: 6px 10px;
+    width: 250px;
+    border-radius: 8px;
+    border: 1.5px solid #4f0303;
+    text-transform: uppercase;
+  }
+  #passwordMsg, #passwordMsg2, #katilMsg {
+    margin-top: 6px;
+    font-weight: bold;
+  }
+  #passwordDescription, #passwordDescription2 , #katilDescription {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: normal;
+  }
+  /* Sürüklenebilir pencere stilleri */
+  #clueWindow, #letterWindow {
+    position: fixed;
+    border: 3px solid #4c0a0a;
+    border-radius: 12px;
+    box-shadow: 6px 6px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    cursor: move;
+    user-select: none;
+    background: white;
+    padding: 15px;
+  }
+  #notesWindow{
+    position: fixed;
+    border: 3px solid #4c0a0a;
+    border-radius: 12px;
+    box-shadow: 6px 6px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    cursor: move;
+    user-select: none;
+    background: white;
+    padding: 15px;
+    width: 600px;
+    height: 700px;
+    overflow-y: auto;
+    display: none;
+  }
+  #clueImage, #letterImage {
+    max-width: 400px;
+    max-height: 500px;
+    display: block;
+  }
+  #notesWindowImage1, #notesWindowImage2 {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: auto ;
+  }
+  #closeClueBtn, #closeLetterBtn, #closeNotesBtn, #closeEbruBtn { /* Kapatma butonları için stil */
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1001;
+    color: #4c0a0a;
+    padding: 5px;
+    border-radius: 50%;
+
+  }
+  #closeClueBtn:hover, #closeLetterBtn:hover, #closeNotesBtn:hover, #closeEbruBtn:hover {
+    color: rgb(35, 15, 15);
+  }
+  .overlay { /* Mektup overlay'i için stil */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #gameContent {
+    display: none;
+  }
+  #sifre-giris {
+  margin-top: 15px;
+}
+#ebruWindow { /* Ebrunun günlük kayıtları penceresi için stil */
+  position: fixed;
+  width: 700px;
+  max-width: 100%;
+  max-height: 100vh;
+  background: white;
+  border: 3px solid #4c0a0a;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  z-index: 1002;
+  overflow-y: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#ebruWindow img {
+  height: 200px;
+  object-fit: cover;
+}
+
+#ahmet_notWindow,#nermin_notWindow, #mehmet_notWindow, #ebru_notWindow {
+  position: fixed;
+  width: 600px;
+  max-width: 100%;
+  max-height: 100vh;
+  background: white;
+  border: 3px solid #4c0a0a;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  z-index: 1002;
+  overflow-y: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#ahmet_notWindow img, #nermin_notWindow img, #mehmet_notWindow img, #ebru_notWindow img {
+  height: 200px;
+  object-fit: cover;
+}
+
+#closeahmetBtn, #closenerminBtn, #closemehmetBtn, #closeebruBtn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1001;
+  color: #4c0a0a;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+#closeahmetBtn:hover, #closenerminBtn:hover, #closemehmetBtn:hover, #closeebruBtn:hover {
+    color: #4c0a0a;
+  }
+  
+
+
+</style>
+</head>
+<body>
+
+<!-- Mektup Overlay'i -->
+<div id="letterOverlay" class="overlay">
+  <div id="letterWindow">
+    <button id="closeLetterBtn">×</button>
+    <img id="letterImage" src="mektup_resmi.jpg" alt="Gizemli Mektup">
+  </div>
+</div>
+
+<!-- Oyun içeriği -->
+<div id="gameContent">
+  <div id="gameContainer">
+    <canvas id="bookCanvas" width="1040" height="550"></canvas>
+
+    <div id="buttons">
+      <button id="prevBtn">◀ GERİ</button>
+      <button id="nextBtn">İLERİ ▶</button>
+    </div>
+       <!-- Şifre Giriş Alanları -->
+    <div id="passwordArea" style="display:none;">
+      <div id="passwordDescription">
+        Yukarıda bulunan bulmacada bütün kelimeleri bulduğunuzda gizli mesaj ortaya çıkacaktır. 
+        Bir adet gizli kelime bulacaksınız. Bu kelimeyi aşağıdaki alana büyük harflerle girip dosyaya ait bir delil bulacaksınız.
+        Şifreyi büyük harflerle giriniz.
+      </div>
+      <input type="text" id="passwordInput" placeholder="Şifreyi buraya yaz" maxlength="20" />
+      <button id="checkPasswordBtn">GÖNDER</button>
+      <div id="passwordMsg"></div>
+    </div>
+
+    <div id="passwordArea2" style="display:none;">
+      <div id="passwordDescription">
+        Yukarıda bulunan nottaki şifreyi büyük harflerle girip dosyaya ait bir delil bulacaksınız.
+      </div>
+      <input type="text" id="passwordInput2" placeholder="Şifreyi buraya yaz" maxlength="20" />
+      <button id="checkPasswordBtn2">GÖNDER</button>
+      <div id="passwordMsg2"></div>
+    </div>
+
+    <div id="katilArea" style="display:none;">
+      <div id="katilDescription">
+        Katilin kim olduğunu düşündüğünüzü aşağıdaki alana yazabilirsiniz. 
+      </div>
+      <input type="text" id="katilInput" placeholder="Katilin adını yaz" maxlength="20" />
+      <button id="checkKatilBtn">GÖNDER</button>
+      <div id="katilMsg"></div>
+    </div>
+  
+
+  <!-- Sürüklenebilir ipucu penceresi -->
+  <div id="clueWindow" style="display:none;">
+    <button id="closeClueBtn">×</button>
+    <img id="clueImage" src="" alt="İpucu Resmi" />
+  </div>
+
+  <div id="notesWindow" style="display:none;">
+    <button id="closeNotesBtn">×</button>
+    <img id="notesWindowImage1" src="11.jpg" alt="Notlar Resmi1" class="notesImage" />
+     <img id="notesWindowImage2" src="12.jpg" alt="Notlar Resmi2" class="notesImage"/>
+  </div>
+  <!-- Ebru'nun Günlük Kayıtları Pencere -->
+<div id="ebruWindow" class="custom-window" style="display:none;">
+  <button id="closeEbruBtn">×</button>
+  <h2 style="text-align:center; color:#4c0a0a;">Ebru Toros'un Günlük Kayıtları</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+<img src="ebru_günlük1.jpg" alt="Ebru Otopsi Raporu" style="width:100%; height:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2);">
+<img src="ebru_günlük2.jpg" alt="Ebru Otopsi Raporu" style="width:100%; height:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2);">  
+<img src="ebru_günlük3.jpg" alt="Ebru Otopsi Raporu" style="width:100%; height:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2);">
+<img src="ebru_günlük4.jpg" alt="Ebru Otopsi Raporu" style="width:100%; height:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2);">
+</div>
+</div>
+  <!-- Ahmet'in Notları Penceresi -->
+<div id="ahmet_notWindow" class="custom-window" style="display:none;">
+  <button id="closeahmetBtn">×</button>
+  <h2 style="text-align:center; color:#4c0a0a;">Ahmet'ın Yanında Bulunan El Yazısı Not</h2>
+  <img id="ahmet_not" src="ahmet_not.jpg" alt="Ahmet Not 1" class="notesImage" />
+</div>
+
+  <!-- Nermin'in Notları Penceresi -->
+<div id="nermin_notWindow" class="custom-window" style="display:none;">
+  <button id="closenerminBtn">×</button>
+  <h2 style="text-align:center; color:#4c0a0a;">Nermin'in Yanında Bulunan El Yazısı Not</h2>
+  <img id="nermin_not" src="nermin_not.jpg" alt="Nermin Not 1" class="notesImage" />
+</div>
+
+  <!-- Mehmet'in Notları Penceresi -->
+<div id="mehmet_notWindow" class="custom-window" style="display:none;">
+  <button id="closemehmetBtn">×</button>
+  <h2 style="text-align:center; color:#4c0a0a;">Mehmet'in Yanında Bulunan El Yazısı Not</h2>
+  <img id="mehmet_not" src="mehmet_not.jpg" alt="Mehmet Not 1" class="notesImage" />
+</div>
+
+ <!-- Ebru'nun Notları Penceresi -->
+<div id="ebru_notWindow" class="custom-window" style="display:none;">
+  <button id="closeebruBtn">×</button>
+  <h2 style="text-align:center; color:#4c0a0a;">Ebru'nun Yanında Bulunan El Yazısı Not</h2>
+  <img id="ebru_not" src="ebru_not.jpg" alt="Ebru Not 1" class="notesImage" />
+</div>
+<!--Arkaplan Müziği-->
+ <audio controls loop autoplay hidden > 
+  <source src="arkaplan.mp3" type="audio/mpeg"> 
+  Your browser does not support the audio element.
+</audio>
+  <!--Sayfa Çevirme Sesi-->
+  <audio id="sayfa_sesi" src="sayfa_ses.mp3" preload="auto"></audio>
+ 
+</div>
+
+<script>
+  // Canvas ve çizim bağlamını al
+  const canvas = document.getElementById('bookCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Kitap sayfa bilgileri
+  const totalPages = 7;
+  let currentPage = 1;
+
+  // Sayfa boyutları ve konumları
+  const pageWidth = 370;
+  const pageHeight = 520;
+  const gapBetweenPages = 0;
+  const bookX = (canvas.width - (pageWidth * 2 + gapBetweenPages)) / 2;
+  const bookY = (canvas.height - pageHeight) / 2;
+
+  // Görselleri yükle
+  const kapakGorsel = new Image();
+  kapakGorsel.src = 'kapak_resmi.jpg';
+  kapakGorsel.onload = function() {
+    if (!document.getElementById('letterOverlay').style.display || 
+        document.getElementById('letterOverlay').style.display === 'none') {
+      drawBook();
+    }
+  };
+// Sayfa görselleri
+  const sayfa1Gorsel = new Image();
+  sayfa1Gorsel.src = 'olay_yeri.jpg';
+
+  const mektupGorsel = new Image();
+  mektupGorsel.src = 'mektup_resmi.jpg';
+
+  const sayfa3Gorsel = new Image();
+  sayfa3Gorsel.src = 'şifreli_not.jpg';
+
+  const sayfa4Gorsel = new Image();
+  sayfa4Gorsel.src = 'mehmet_otopsi.jpg';
+
+  const sayfa5Gorsel = new Image();
+  sayfa5Gorsel.src = 'mehmet_rapor.jpg';
+
+  const sayfa6Gorsel = new Image();
+  sayfa6Gorsel.src = 'nermin_otopsi.jpg';
+
+  const sayfa7Gorsel = new Image();
+  sayfa7Gorsel.src = 'nermin_rapor.jpg';
+
+  const sayfa8Gorsel = new Image();
+  sayfa8Gorsel.src = 'ebru_otopsi.jpg';
+
+  const sayfa9Gorsel = new Image();
+  sayfa9Gorsel.src = 'ebru_rapor.jpg';
+
+  const sayfa10Gorsel = new Image();
+  sayfa10Gorsel.src = 'ahmet_otopsi.jpg';
+
+  const sayfa11Gorsel = new Image();
+  sayfa11Gorsel.src = 'ahmet_rapor.jpg';
+
+  // Bulmaca verileri
+  const puzzleSize = 15;
+  let puzzleGrid = [
+    ['C','İ','E','Z','N','A','L','A','N','D','I','R','M','A','G'], 
+    ['U','Y','H','İ','İ','R','E','A','L','T','O','I','U','D','L'],
+    ['K','X','M','A','K','V','O','K','K','N','P','I','H','X','G'],
+    ['L','E','J','Y','N','Q','V','E','F','A','D','A','L','E','T'],
+    ['Y','E','N','W','E','E','Q','O','G','Ö','K','P','C','U','D'],
+    ['G','H','D','C','W','W','T','F','E','R','D','İ','L','W','J'],
+    ['J','E','E','E','E','S','Ş','R','N','R','M','D','R','B','C'],
+    ['L','S','O','X','B','Ü','Ö','O','F','R','T','G','Z','L','I'],
+    ['L','A','I','F','N','V','K','V','K','O','R','G','I','D','E'],
+    ['R','P','A','Ö','A','Z','S','N','N','N','I','K','M','S','F'],
+    ['T','L','D','N','N','A','E','U','D','S','Z','J','B','F','G'],
+    ['A','A','Ş','H','F','F','R','Y','V','P','A','I','W','V','M'],
+    ['Z','Ş','R','P','R','N','K','B','D','M','G','N','F','U','Y'],
+    ['H','M','Q','E','K','İ','M','D','D','W','K','D','M','S','V'],
+    ['V','A','T','R','İ','Z','E','V','H','A','P','R','F','Q','U']
+  ];
+
+  let selectedCells = [];
+
+  function drawPageBackground(x, y) {
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#4c0a0a';
+    ctx.lineWidth = 1;
+    ctx.fillRect(x, y, pageWidth, pageHeight);
+    ctx.strokeRect(x, y, pageWidth, pageHeight);
+  }
+// Kapak 
+  function drawCover() {
+    const coverWidth = pageWidth + gapBetweenPages / 2;       
+    const coverX = (canvas.width - coverWidth) / 2;
+    const coverY = bookY;
+    
+    if (kapakGorsel.complete && kapakGorsel.naturalHeight !== 0) {
+      ctx.drawImage(kapakGorsel, coverX, coverY, coverWidth, pageHeight);
+    } else {
+      drawPageBackground(coverX, coverY);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('YETİMHANE CİNAYETLERİ', canvas.width/2, bookY + pageHeight / 2);
+    }
+  }
+// Sayfa numaralarını çiz
+  function drawSayfa1() {
+    const x = bookX;
+    const y = bookY;
+
+    if (sayfa1Gorsel.complete && sayfa1Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa1Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 1 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+   function drawSayfa3() {
+    const x = bookX;
+    const y = bookY;
+
+    if (sayfa3Gorsel.complete && sayfa3Gorsel.naturalHeight !== 0) {
+      ctx.drawImage( sayfa3Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 3 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawSayfa4() {
+    const x = bookX + pageWidth;
+    const y = bookY;
+
+    if (sayfa4Gorsel.complete && sayfa4Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa4Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 4 Görseli', x + pageWidth , y + pageHeight );
+    }
+  }
+
+  function drawSayfa5() {
+    const x = bookX;
+    const y = bookY;
+
+    if (sayfa5Gorsel.complete && sayfa5Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa5Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 5 Görseli', x + pageWidth, y + pageHeight );
+    }
+  }
+
+  function drawSayfa6() {
+    const x = bookX + pageWidth ;
+    const y = bookY;
+
+    if (sayfa6Gorsel.complete && sayfa6Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa6Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 6 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawSayfa7() {
+    const x = bookX;
+    const y = bookY;
+
+    if (sayfa7Gorsel.complete && sayfa7Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa7Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 7 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawSayfa8() {
+    const x = bookX+ pageWidth;
+    const y = bookY;
+
+    if (sayfa8Gorsel.complete && sayfa8Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa8Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 8 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawSayfa9() {
+    const x = bookX;
+    const y = bookY;
+
+    if (sayfa9Gorsel.complete && sayfa9Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa9Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 9 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawSayfa10() {
+    const x = bookX+ pageWidth;
+    const y = bookY;
+
+    if (sayfa10Gorsel.complete && sayfa10Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa10Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 10 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawSayfa11() {
+    const x = bookX;
+    const y = bookY;
+
+    if (sayfa11Gorsel.complete && sayfa11Gorsel.naturalHeight !== 0) {
+      ctx.drawImage(sayfa11Gorsel, x, y, pageWidth, pageHeight);
+    } else {
+      drawPageBackground(x, y);
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 48px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sayfa 11 Görseli', x + pageWidth / 2, y + pageHeight / 2);
+    }
+  }
+
+  function drawLastPage() {
+    const x = bookX + pageWidth + gapBetweenPages;
+    const y = bookY;
+
+    drawPageBackground(x, y);
+    ctx.font = 'bold 12px Arial';
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.fillText('KATİLİN KİM OLDUĞUNU BULABİLDİN Mİ?', x + pageWidth / 2, y + pageHeight / 2 - 30);
+    ctx.fillText('CEVABI AŞAĞIDAKİ BOŞLUĞA YAZ!', x + pageWidth / 2, y + pageHeight / 2);
+    ctx.fillText('UMARIM KATİLİ DOĞRU TAHMİN ETMİŞSİNDİR!', x + pageWidth / 2, y + pageHeight / 2 + 30);
+   
+  }
+  // Bulmaca sayfasını boyutlandırma
+  function getPuzzleCellSize() {
+    const x = bookX + pageWidth + gapBetweenPages;
+    const y = bookY;
+    const availableWidth = pageWidth;
+    const availableHeight = pageHeight;
+    const padding = 18;
+    const cellWidth = (availableWidth - 2 * padding) / puzzleSize;
+    const cellHeight = (availableHeight - 2 * padding) / puzzleSize;
+    return Math.floor(Math.min(cellWidth, cellHeight));
+  }
+
+  function drawPuzzle() {
+    const x = bookX + pageWidth + gapBetweenPages;
+    const y = bookY;
+    const padding = 18;
+    const cellSize = getPuzzleCellSize();
+
+    ctx.save();
+    drawPageBackground(x, y);
+
+    ctx.lineWidth = 2;
+    ctx.font = `${cellSize * 0.5}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let row = 0; row < puzzleSize; row++) {
+      for (let col = 0; col < puzzleSize; col++) {
+        const cellX = x + padding + col * cellSize;
+        const cellY = y + padding + row * cellSize;
+
+        const isSelected = selectedCells.some(c => c.row === row && c.col === col);
+        if (isSelected) {
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+          ctx.fillRect(cellX, cellY, cellSize, cellSize);
+        }
+
+        ctx.strokeStyle = '#4c0a0a';
+        ctx.strokeRect(cellX, cellY, cellSize, cellSize);
+
+        ctx.fillStyle = '#333';
+        const letter = puzzleGrid[row][col];
+        if (letter !== ' ') {
+          ctx.fillText(letter, cellX + cellSize / 2, cellY + cellSize / 2);
+        }
+      }
+    }
+    ctx.restore();
+  }
+  function drawPuzzle() {
+    const x = bookX + pageWidth + gapBetweenPages;
+    const y = bookY;
+
+    drawPageBackground(x, y);
+
+    const cellSize = 24;
+    ctx.lineWidth = 2;
+    ctx.font = `${cellSize * 0.5}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let row = 0; row < puzzleSize; row++) {
+      for (let col = 0; col < puzzleSize; col++) {
+        const cellX = x + col * cellSize;
+        const cellY = y + row * cellSize;
+
+        const isSelected = selectedCells.some(c => c.row === row && c.col === col);
+        if (isSelected) {
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+          ctx.fillRect(cellX, cellY, cellSize, cellSize);
+        }
+
+        ctx.strokeStyle = '#4c0a0a';
+        ctx.strokeRect(cellX, cellY, cellSize, cellSize);
+
+        ctx.fillStyle = '#333';
+        const letter = puzzleGrid[row][col];
+        if (letter !== ' ') {
+          ctx.fillText(letter, cellX + cellSize / 2, cellY + cellSize / 2);
+        }
+      }
+    }
+  }
+
+// Ebru penceresini kapat
+document.getElementById('closeEbruBtn').addEventListener('click', function() {
+  document.getElementById('ebruWindow').style.display = 'none';
+});
+
+// clue penceresini kapat
+document.getElementById('closeClueBtn').addEventListener('click', function() {
+  document.getElementById('clueWindow').style.display = 'none';
+});
+
+//ahmet not penceresini kapat
+document.getElementById('closeahmetBtn').addEventListener('click', function() {
+  document.getElementById('ahmet_notWindow').style.display = 'none';
+});
+// nermin not penceresini kapat
+document.getElementById('closenerminBtn').addEventListener('click', function() {
+  document.getElementById('nermin_notWindow').style.display = 'none';
+});
+// mehmet not penceresini kapat
+document.getElementById('closemehmetBtn').addEventListener('click', function() {
+  document.getElementById('mehmet_notWindow').style.display = 'none';
+});
+// ebru not penceresini kapat
+document.getElementById('closeebruBtn').addEventListener('click', function() {
+  document.getElementById('ebru_notWindow').style.display = 'none';
+});
+// Kitap oluşturma
+  function drawBook() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (currentPage === 1) {
+      drawCover();
+    } else if (currentPage === 2) {
+      drawSayfa1();
+      drawPuzzle();
+    } else if (currentPage === 3) { 
+     drawSayfa3();
+     drawSayfa4();
+     showMehmet_not('mehmet_not.jpg'); // Mehmet'in notlarını göster
+    }
+    else if (currentPage === 4) {
+      drawSayfa5();
+      drawSayfa6();
+      showNermin_not('nermin_not.jpg'); // Nermin'in notlarını göster
+    }else if (currentPage === 5) {
+      drawSayfa7();
+      drawSayfa8();
+      showebru_notWindow('ebru_not.jpg'); // Ebru'nun notlarını göster
+    } else if (currentPage === 6) {
+      drawSayfa9();
+      drawSayfa10();
+      showEbruWindow(); // Ebru penceresini göster
+    } else if (currentPage === 7) {
+      drawSayfa11();
+      showahmet_not('ahmet_not.jpg'); // Ahmet'in notlarını göster
+      drawLastPage();
+    }else {
+      let leftPageNum, rightPageNum;
+      if (currentPage % 2 === 0) {
+        leftPageNum = currentPage - 1;
+        rightPageNum = currentPage;
+      } else {
+        leftPageNum = currentPage;
+        rightPageNum = currentPage + 1;
+      }
+
+      if (rightPageNum > totalPages) rightPageNum = totalPages;
+
+      drawPageWithNumber(bookX, bookY, leftPageNum);
+      drawPageWithNumber(bookX + pageWidth + gapBetweenPages, bookY, rightPageNum);
+    }
+
+    document.getElementById('passwordArea').style.display = (currentPage === 2) ? 'block' : 'none';
+    document.getElementById('passwordMsg').textContent = '';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordArea2').style.display = (currentPage === 3) ? 'block' : 'none';
+    document.getElementById('passwordMsg2').textContent = '';
+    document.getElementById('passwordInput2').value = '';
+    document.getElementById('katilArea').style.display = (currentPage === 7) ? 'block' : 'none';
+    document.getElementById('katilMsg').textContent = '';
+if( currentPage >1){
+  const centerX = bookX + pageWidth;
+  ctx.beginPath();
+  ctx.moveTo(centerX, bookY);
+  ctx.lineTo(centerX, bookY + pageHeight);
+  ctx.strokeStyle = '#654321'; // Kahverengi
+  ctx.lineWidth = 3; // Kalın çizgi
+  ctx.stroke();}
+
+  
+  
+  }
+
+
+// Clue penceresini göster
+  function showClueWindow(imgSrc) {
+    const clueWindow = document.getElementById('clueWindow');
+    const clueImage = document.getElementById('clueImage');
+    
+    clueImage.src = imgSrc;
+    clueWindow.style.display = 'block';
+    
+    clueImage.onload = function() {
+      clueWindow.style.width = (this.width + 30) + 'px';
+      clueWindow.style.height = (this.height + 30) + 'px';
+      clueWindow.style.left = '50%';
+      clueWindow.style.top = '50%';
+      clueWindow.style.transform = 'translate(-50%, -50%)';
+
+    const closeBtn = document.getElementById('closeClueBtn');
+    clueWindow.style.position = 'fixed';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '5px';
+    closeBtn.style.right = '5px';
+    };
+
+  }
+  
+
+// Ahmet not penceresini göster
+  function showahmet_not(imgSrc) {
+    const ahmet_notWindow = document.getElementById('ahmet_notWindow');
+    const clueImage = document.getElementById('ahmet_not');
+    
+    clueImage.src = imgSrc;
+    ahmet_notWindow.style.display = 'block';
+    
+    clueImage.onload = function() {
+      ahmet_notWindow.style.width = (this.width + 30) + 'px';
+      ahmet_notWindow.style.height = (this.height + 30) + 'px';
+      ahmet_notWindow.style.left = '50%';
+      ahmet_notWindow.style.top = '50%';
+      ahmet_notWindow.style.transform = 'translate(-50%, -50%)';
+
+      const closeBtn = document.getElementById('closeahmetBtn');
+      closeBtn.style.position = 'absolute';
+      closeBtn.style.top = '5px';
+      closeBtn.style.right = '5px';
+    };
+
+  }
+// Nermin not penceresini göster
+  function showNermin_not(imgSrc) {
+    const nermin_notWindow = document.getElementById('nermin_notWindow');
+    const clueImage = document.getElementById('nermin_not');
+    clueImage.src = imgSrc;
+    nermin_notWindow.style.display = 'block';
+    clueImage.onload = function() {
+      nermin_notWindow.style.width = (this.width + 30) + 'px';
+      nermin_notWindow.style.height = (this.height + 30) + 'px';
+      nermin_notWindow.style.left = '50%';
+      nermin_notWindow.style.top = '50%';
+      nermin_notWindow.style.transform = 'translate(-50%, -50%)';
+    const closeBtn = document.getElementById('closenerminBtn');
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '5px';
+    closeBtn.style.right = '5px';
+    };
+  }
+// Mehmet not penceresini göster
+  function showMehmet_not(imgSrc) {
+    const mehmet_notWindow = document.getElementById('mehmet_notWindow');
+    const clueImage = document.getElementById('mehmet_not');
+    clueImage.src = imgSrc;
+    mehmet_notWindow.style.display = 'block';
+    clueImage.onload = function() {
+      mehmet_notWindow.style.width = (this.width + 30) + 'px';
+      mehmet_notWindow.style.height = (this.height + 30) + 'px';
+      mehmet_notWindow.style.left = '50%';
+      mehmet_notWindow.style.top = '50%';
+      mehmet_notWindow.style.transform = 'translate(-50%, -50%)';
+    const closeBtn = document.getElementById('closemehmetBtn');
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '5px';
+    closeBtn.style.right = '5px';
+    };
+  }
+// Ebru not penceresini göster
+  function showebru_notWindow(imgSrc) {
+    const ebru_notWindow = document.getElementById('ebru_notWindow');
+    const clueImage = document.getElementById('ebru_not');
+    clueImage.src = imgSrc;
+    ebru_notWindow.style.display = 'block';
+    clueImage.onload = function() {
+      ebru_notWindow.style.width = (this.width + 30) + 'px';
+      ebru_notWindow.style.height = (this.height + 30) + 'px';
+      ebru_notWindow.style.left = '50%';
+      ebru_notWindow.style.top = '50%';
+      ebru_notWindow.style.transform = 'translate(-50%, -50%)';
+      const closeBtn = document.getElementById('closeebruBtn');
+      closeBtn.style.position = 'absolute';
+      closeBtn.style.top = '5px';
+      closeBtn.style.right = '5px';
+    };
+  }
+  document.getElementById('closeLetterBtn').addEventListener('click', function () {
+    document.getElementById('letterOverlay').style.display = 'none';
+    document.getElementById('gameContent').style.display = 'block'; // Oyun ekranını göster
+  });
+    document.getElementById('closeahmetBtn').onclick = function() {
+        document.getElementById('ahmet_notWindow').style.display = 'none';
+    };
+    document.getElementById('closenerminBtn').onclick = function() {
+        document.getElementById('nermin_notWindow').style.display = 'none';
+    };
+    document.getElementById('closemehmetBtn').onclick = function() {
+        document.getElementById('mehmet_notWindow').style.display = 'none';
+    };
+    document.getElementById('closeebruBtn').onclick = function() {
+        document.getElementById('ebru_notWindow').style.display = 'none';
+    };
+
+ 
+
+  // Pencereler için sürükleme özelliği
+  function setupAllDraggables() {
+    setupDraggableWindow('clueWindow', 'closeClueBtn');
+    setupDraggableWindow('letterWindow', 'closeLetterBtn');
+    setupDraggableWindow('notesWindow', 'closeNotesBtn');
+    setupDraggableWindow('ebruWindow', 'closeEbruBtn');
+    setupDraggableWindow('ahmet_notWindow', 'closeahmetBtn');
+    setupDraggableWindow('nermin_notWindow', 'closenerminBtn');
+    setupDraggableWindow('mehmet_notWindow', 'closemehmetBtn');
+    setupDraggableWindow('ebru_notWindow', 'closeebruBtn');
+  }
+
+  // Bulmacada hücre seçme
+  canvas.addEventListener('mousedown', (e) => {
+    if (currentPage !== 2) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left - (bookX + pageWidth + gapBetweenPages);
+    const y = e.clientY - rect.top - bookY;
+
+    if (x >= 0 && y >= 0 && x < puzzleSize * 26 && y < puzzleSize * 26) {
+      const col = Math.floor(x / 24);
+      const row = Math.floor(y / 24);
+      
+      const cellIndex = selectedCells.findIndex(c => c.row === row && c.col === col);
+      
+      if (cellIndex === -1) {
+        selectedCells.push({row, col});
+      } else {
+        selectedCells.splice(cellIndex, 1);
+      }
+      
+      drawBook();
+    }
+  });
+  function setupDraggableWindow(windowId, closeBtnId) {
+    const windowElement = document.getElementById(windowId);
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // Başlangıç pozisyonu ayarla
+    windowElement.style.left = '50%';
+    windowElement.style.top = '50%';
+    windowElement.style.transform = 'translate(-50%, -50%)';
+
+    windowElement.addEventListener('mousedown', (e) => {
+        if (e.target.id === closeBtnId) return;
+        isDragging = true;
+        const rect = windowElement.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        windowElement.style.cursor = 'grabbing';
+        windowElement.style.transform = 'none';
+        windowElement.style.zIndex = '1001';
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        windowElement.style.cursor = 'move';
+        windowElement.style.zIndex = '1000';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            windowElement.style.left = (e.clientX - offsetX) + 'px';
+            windowElement.style.top = (e.clientY - offsetY) + 'px';
+        }
+    });
+}
+// İlerleme ve geri alma butonları
+  document.getElementById('prevBtn').onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      selectedCells = [];
+      drawBook();
+    }
+  };
+
+  document.getElementById('nextBtn').onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      selectedCells = [];
+      drawBook();
+    }
+  };
+// Şifre kontrolü
+  const secretPassword = 'CEZALANDIRMA';
+
+  document.getElementById('checkPasswordBtn').onclick = () => {
+    const input = document.getElementById('passwordInput').value.trim().toUpperCase();
+    const msg = document.getElementById('passwordMsg');
+    
+    if (input === secretPassword) {
+      msg.style.color = 'green';
+      msg.textContent = 'Doğru! Dosyaya ait delili gösteriyorum...';
+      showClueWindow('revir_listesi.png');
+    } else {
+      msg.style.color = 'red';
+      msg.textContent = 'Yanlış şifre, lütfen tekrar deneyin.';
+    }
+  };
+    const secretPassword2 = 'KURBAN';
+
+  document.getElementById('checkPasswordBtn2').onclick = () => {
+    const input = document.getElementById('passwordInput2').value.trim().toUpperCase();
+    const msg = document.getElementById('passwordMsg2');
+    
+    if (input === secretPassword2) {
+      msg.style.color = 'green';
+      msg.textContent = 'Doğru! Dosyaya ait delili gösteriyorum...';
+      showNotesWindow();
+    } else {
+      msg.style.color = 'red';
+      msg.textContent = 'Yanlış şifre, lütfen tekrar deneyin.';
+    }
+  };
+
+ const katil_kim = 'SERKAN ÇALIŞKAN';
+  document.getElementById('checkKatilBtn').onclick = () => {
+    const input = document.getElementById('katilInput').value.trim().toUpperCase();
+    const msg = document.getElementById('katilMsg');
+    
+    if (input === katil_kim) {
+      msg.style.color = 'green';
+      msg.textContent = 'Tebrikler! Katili doğru tahmin ettiniz.';
+    } else {
+      msg.style.color = 'red';
+      msg.textContent = 'Üzgünüm, bu doğru cevap değil. Lütfen tekrar deneyin.';
+    }
+  };
+
+  document.getElementById('closeLetterBtn').onclick = function() {
+    document.getElementById('letterOverlay').style.display = 'none';
+    document.getElementById('gameContent').style.display = 'block';
+    drawBook();
+  };
+
+  // Sayfa yüklendiğinde sadece mektubu gösterir
+  window.onload = function() {
+    document.getElementById('gameContent').style.display = 'none';
+    
+    const letterWindow = document.getElementById('letterWindow');
+    const letterImage = document.getElementById('letterImage');
+    
+    letterImage.onload = function() {
+      letterWindow.style.width = (this.width + 30) + 'px';
+      letterWindow.style.height = (this.height + 30) + 'px';
+    };
+    
+    document.getElementById('letterOverlay').style.display = 'flex';
+  };
+// Notlar penceresini göster
+  function showNotesWindow() {
+    const notesWindow = document.getElementById('notesWindow');
+    notesWindow.style.display = 'block';
+    notesWindow.style.left = '50%';
+    notesWindow.style.top = '50%';
+    notesWindow.style.transform = 'translate(-50%, -50%)';
+
+    const closeBtn = document.getElementById('closeNotesBtn');
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '5px';
+    closeBtn.style.right = '5px';
+
+}
+
+  // Notes penceresini kapat
+  document.getElementById('closeNotesBtn').onclick = function() {
+    document.getElementById('notesWindow').style.display = 'none';
+  };
+
+// Notlar penceresini göster
+function openNotesWindow() {
+  document.getElementById('notesWindow').style.display = 'block';
+}
+
+// Kapatma butonu için
+document.getElementById('closeNotesBtn').addEventListener('click', function () {
+  document.getElementById('notesWindow').style.display = 'none';
+});
+// Ebru penceresini göster
+ function showEbruWindow() {
+    const  ebruWindow = document.getElementById('ebruWindow');
+    ebruWindow.style.display = 'block';
+    ebruWindow.style.left = '50%';
+    ebruWindow.style.top = '50%';
+    ebruWindow.style.transform = 'translate(-50%, -50%)';
+
+    const closeEbruBtn = document.getElementById('closeEbruBtn');
+    closeEbruBtn.style.position = 'absolute';
+    closeEbruBtn.style.top = '5px';
+    closeEbruBtn.style.right = '5px';
+}
+
+  // Ebru penceresini kapat
+  document.getElementById('closeEbruBtn').onclick = function() {
+    document.getElementById('ebruWindow').style.display = 'none';
+  };
+
+
+// Kapatma butonu için
+document.getElementById('closeEbruBtn').addEventListener('click', function () {
+  document.getElementById('ebruWindow').style.display = 'none';
+});
+window.onload = function() {
+    // Tüm sürükleme pencerelerini listeye ekle
+    const pencereler = [
+        { pencere: 'clueWindow', kapatma: 'closeClueBtn' },       // Revir listesi
+        { pencere: 'ahmet_notWindow', kapatma: 'closeahmetBtn' }, // Ahmet'in notu
+        { pencere: 'nermin_notWindow', kapatma: 'closenerminBtn' }, // Nermin'in notu
+        { pencere: 'mehmet_notWindow', kapatma: 'closemehmetBtn' }, // Mehmet'in notu
+        { pencere: 'ebru_notWindow', kapatma: 'closeebruBtn' },    // Ebru'nun notu
+        { pencere: 'notesWindow', kapatma: 'closeNotesBtn' },      // Notlar penceresi
+        { pencere: 'ebruWindow', kapatma: 'closeEbruBtn' }         // Ebru'nun günlükleri
+    ];
+}
+
+  // Tüm sürüklenebilir pencereleri ayarla
+  setupAllDraggables();
+
+
+  //Sayfa çevirme ses efekti
+  const sayfa_sesi = document.getElementById('sayfa_sesi');
+  function playSayfaSes(){
+    sayfa_sesi.currentTime=0;
+    sayfa_sesi.play();
+  }
+  //her butona tıklandığında sayfa_sesi çalacak
+  document.getElementById('prevBtn').addEventListener('click', playSayfaSes);
+  document.getElementById('nextBtn').addEventListener('click', playSayfaSes);
+
+  // Kitap sayfasını çiz
+  drawBook();
+</script>
+
+</body>
+</html>
