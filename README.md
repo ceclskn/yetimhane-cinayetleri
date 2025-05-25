@@ -31,7 +31,7 @@ Oyuncular, şifreleri çözüp, ipuçlarını toplayarak, verilen bilgileri kar�
 ~ Canva yapay zekası ile oluşturulan görseller(kişiler) 
 
 ## Oyun içerisinden bazı görseller  
-! ( cinayet/kapak_resmi.jpg )  
-! ( cinayet/olay_yeri.jpg )  
+![Görsel1] ( cinayet/kapak_resmi.jpg )  
+![Görsel2] ( cinayet/olay_yeri.jpg )  
 
 
