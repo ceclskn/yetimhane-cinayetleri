@@ -28,6 +28,10 @@ Oyuncular, şifreleri çözüp, ipuçlarını toplayarak, verilen bilgileri kar�
 
 ## Görseller ve Tasarım  
 ~ Canva ile oluşturulan resimler(özgün tasarım)  
-~ Canva yapay zekası ile oluşturulan görseller(kişiler)  
+~ Canva yapay zekası ile oluşturulan görseller(kişiler) 
+
+## Oyun içerisinden bazı görseller
+~ (cinayet/kapak_resmi.jpg)
+~ (cinayet/olay_yeri.jpg)
 
 
